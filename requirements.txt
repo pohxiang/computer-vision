@@ -1,0 +1,7 @@
+ultralytics
+pandas
+numpy
+opencv-python
+torch
+scikit-learn
+jupyterlab
