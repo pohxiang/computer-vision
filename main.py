@@ -2,24 +2,23 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import io
-from services.yolo_service import (
-    load_model, 
-    process_image, 
-    get_detection_summary
-)
-from services.opencv_service import draw_predictions
+from services.ultralytics.yolo_service import yoloservices
+from services.opencv.opencv_service import opencvservices
 
 # Configure Streamlit page
 st.set_page_config(
-    page_title="Object Detection App",
-    page_icon="🔍",
+    page_title="Object Detection App through images",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 def main():
-    st.title("🔍 Object Detection with YOLOv8")
-    st.markdown("Upload an image to detect objects using YOLOv8 model")
+
+    yoloservice = yoloservices()
+    opencv_service = opencvservices()
+
+    st.title("Object Detection App through images")
+    st.markdown("Upload an image to detect objects using YOLO model")
     
     # Sidebar for settings
     with st.sidebar:
@@ -33,16 +32,14 @@ def main():
             help="Minimum confidence score for detections"
         )
         
-        st.markdown("---")
-        st.markdown("### About")
-        st.markdown("This app uses YOLOv8 for real-time object detection.")
+        st.markdown("This app uses YOLO for real-time object detection.")
         st.markdown("Supported formats: JPG, JPEG, PNG")
     
     # Load model
-    model = load_model()
-    
+    model = yoloservice.load_model()
+
     if model is None:
-        st.error("Failed to load YOLO model. Please check if 'yolov8n.pt' exists in the project directory.")
+        st.error("Failed to load YOLO model. Please check if 'yolo[version].pt exists in the project directory.")
         return
     
     # File uploader
@@ -66,20 +63,20 @@ def main():
             
             # Process image
             with st.spinner("Processing image..."):
-                results = process_image(image, model, confidence_threshold)
+                results = yoloservice.process_image(image, model, confidence_threshold)
             
             if results is not None:
                 # Draw predictions on image
-                processed_image = draw_predictions(image, results)
-                
+                processed_image = opencv_service.draw_predictions(image, results)
+
                 with col2:
-                    st.subheader("🎯 Detection Results")
+                    st.subheader("Detection Results")
                     st.image(processed_image, caption="Detected Objects", use_container_width=True)
                 
                 # Display detection summary
-                st.subheader("📊 Detection Summary")
-                detections = get_detection_summary(results)
-                
+                st.subheader("Detection Summary")
+                detections = yoloservice.get_detection_summary(results)
+
                 if detections == "No objects detected":
                     st.info("No objects detected with the current confidence threshold.")
                 else:
@@ -114,7 +111,7 @@ def main():
                             )
                     
                     # Detailed detection table
-                    st.subheader("� Detailed Results")
+                    st.subheader("Detailed Results")
                     detection_data = []
                     for i, detection in enumerate(detections, 1):
                         detection_data.append({
@@ -126,7 +123,7 @@ def main():
                     st.dataframe(detection_data, use_container_width=True)
                     
                     # Download processed image
-                    st.subheader("💾 Download Results")
+                    st.subheader("Download Results")
                     
                     # Convert processed image to bytes
                     img_buffer = io.BytesIO()
@@ -150,16 +147,8 @@ def main():
         # Example section
         st.subheader("🎨 Example Usage")
         st.markdown("""
-        1. **Upload an image** using the file uploader above
-        2. **Adjust confidence threshold** in the sidebar if needed
-        3. **View results** with bounding boxes and detection confidence
-        4. **Download** the processed image with detections
-        
-        The app will detect common objects like:
-        - People, animals, vehicles
-        - Household items, electronics
-        - Sports equipment, food items
-        - And many more (80+ classes total)
+        1. Upload any image 
+        2. Have FUNNNNNNNNNNNN!!!!!!!
         """)
 
 if __name__ == "__main__":
