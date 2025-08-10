@@ -6,3 +6,5 @@ torch
 scikit-learn
 jupyterlab
 streamlit
+pillow
+matplotlib
